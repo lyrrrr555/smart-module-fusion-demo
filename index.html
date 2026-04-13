@@ -78,72 +78,81 @@ body {
 
 /* Mode empty state */
 .mode-empty-card {
-  margin: 0 20px 16px; padding: 20px 16px 24px;
-  background: linear-gradient(135deg, #f0f7ff 0%, #e8f4fd 100%);
-  border-radius: 16px; border: 1px solid #e0f0ff;
+  margin: 0 20px 16px; padding: 0;
+  background: #fff; border-radius: 12px;
   display: flex; flex-direction: column; align-items: center; text-align: center;
 }
 .mode-empty-illustration {
-  width: 100%; height: 120px; display: flex; align-items: center;
-  justify-content: center; gap: 16px; margin-bottom: 16px;
-  position: relative;
+  width: 100%; height: 180px; display: flex; align-items: center;
+  justify-content: center; position: relative;
+  border-radius: 12px 12px 0 0; overflow: hidden;
+  background: linear-gradient(180deg, #f0f4f8 0%, #ffffff 100%);
 }
 /* Phone mockup on left */
 .mode-empty-phone {
-  width: 80px; height: 110px; background: #fff; border-radius: 10px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.12); position: relative; overflow: hidden;
-  flex-shrink: 0;
+  width: 120px; height: 150px; background: #fff; border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1); position: relative; overflow: hidden;
 }
 .mode-empty-phone-header {
-  height: 14px; background: #f5f5f5; display: flex; align-items: center;
+  height: 20px; background: #f5f5f5; display: flex; align-items: center;
   justify-content: center;
 }
 .mode-empty-phone-notch {
-  width: 20px; height: 4px; background: #e0e0e0; border-radius: 2px;
+  width: 30px; height: 6px; background: #e0e0e0; border-radius: 3px;
 }
 .mode-empty-phone-body {
-  padding: 6px 6px 4px; display: flex; flex-direction: column;
-  align-items: center; gap: 3px;
+  padding: 10px 8px 6px; display: flex; flex-direction: column;
+  align-items: center; gap: 5px;
 }
 .mode-empty-phone-title {
-  width: 40px; height: 4px; background: #333; border-radius: 2px;
+  width: 60px; height: 6px; background: #333; border-radius: 3px;
 }
 .mode-empty-phone-sub {
-  width: 50px; height: 3px; background: #ccc; border-radius: 2px;
+  width: 70px; height: 4px; background: #ccc; border-radius: 2px;
 }
 .mode-empty-phone-btn {
-  width: 50px; height: 8px; background: #2196F3; border-radius: 4px;
-  margin-top: 2px;
+  width: 70px; height: 12px; background: #2196F3; border-radius: 6px;
+  margin-top: 4px;
 }
 .mode-empty-phone-btn-inner {
-  width: 16px; height: 3px; background: #fff; border-radius: 2px;
-  margin: 0 auto;
+  width: 20px; height: 4px; background: #fff; border-radius: 2px;
+  margin: 3px auto 0;
 }
 .mode-empty-phone-devices {
-  display: flex; gap: 2px; margin-top: 2px;
+  display: flex; gap: 4px; margin-top: 4px;
 }
 .mode-empty-phone-dev {
-  width: 14px; height: 14px; background: #f0f0f0; border-radius: 3px;
+  width: 18px; height: 18px; background: #f0f0f0; border-radius: 4px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 7px;
+  font-size: 9px;
 }
-/* Device icons on right */
-.mode-empty-devices-side {
-  display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
-}
-.mode-empty-dev-icon {
-  width: 30px; height: 30px; background: #fff; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+/* Device icons floating around */
+.mode-empty-dev-float {
+  position: absolute; width: 36px; height: 36px; background: #fff;
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   animation: floatDevice 3s ease-in-out infinite;
 }
-.mode-empty-dev-icon:nth-child(even) { animation-delay: -1.5s; }
+.mode-empty-dev-float:nth-child(even) { animation-delay: -1.5s; }
+@keyframes floatDevice {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.mode-empty-dev-float.f1 { top: 20px; left: 20px; }
+.mode-empty-dev-float.f2 { top: 20px; right: 20px; }
+.mode-empty-dev-float.f3 { bottom: 20px; left: 16px; }
+.mode-empty-dev-float.f4 { bottom: 20px; right: 16px; }
+.mode-empty-dev-float.f5 { top: 50%; left: 8px; transform: translateY(-50%); }
+.mode-empty-dev-float.f6 { top: 50%; right: 8px; transform: translateY(-50%); }
+
+.mode-empty-info {
+  padding: 14px 16px 18px;
+}
 .mode-empty-title {
   font-size: 14px; font-weight: 600; color: #333; margin-bottom: 4px;
 }
 .mode-empty-desc {
   font-size: 11px; color: #999; line-height: 1.4; margin-bottom: 14px;
-  max-width: 240px;
 }
 .mode-empty-btn {
   padding: 8px 32px; border-radius: 10px; font-size: 13px; font-weight: 600;
@@ -721,13 +730,19 @@ body {
           <div id="modeEmptyState">
             <div class="mode-empty-card">
               <div class="mode-empty-illustration">
+                <div class="mode-empty-dev-float f1">&#128249;</div>
+                <div class="mode-empty-dev-float f2">&#128247;</div>
+                <div class="mode-empty-dev-float f3">&#128682;</div>
+                <div class="mode-empty-dev-float f4">&#127968;</div>
+                <div class="mode-empty-dev-float f5">&#128663;</div>
+                <div class="mode-empty-dev-float f6">&#128161;</div>
                 <div class="mode-empty-phone">
                   <div class="mode-empty-phone-header">
                     <div class="mode-empty-phone-notch"></div>
                   </div>
                   <div class="mode-empty-phone-body">
-                    <div class="mode-empty-phone-title">Smart Mode</div>
-                    <div class="mode-empty-phone-sub">One-tap home control</div>
+                    <div class="mode-empty-phone-title"></div>
+                    <div class="mode-empty-phone-sub"></div>
                     <div class="mode-empty-phone-btn">
                       <div class="mode-empty-phone-btn-inner"></div>
                     </div>
@@ -738,18 +753,12 @@ body {
                     </div>
                   </div>
                 </div>
-                <div class="mode-empty-devices-side">
-                  <div class="mode-empty-dev-icon">&#128249;</div>
-                  <div class="mode-empty-dev-icon">&#128247;</div>
-                  <div class="mode-empty-dev-icon">&#128663;</div>
-                  <div class="mode-empty-dev-icon">&#128682;</div>
-                  <div class="mode-empty-dev-icon">&#127968;</div>
-                  <div class="mode-empty-dev-icon">&#128161;</div>
-                </div>
               </div>
-              <div class="mode-empty-title">Control All Devices with One Tap</div>
-              <div class="mode-empty-desc">Set up Home, Away, and Disarmed modes to control your entire home instantly</div>
-              <button class="mode-empty-btn" onclick="startGuidedSetup()">Set Up</button>
+              <div class="mode-empty-info">
+                <div class="mode-empty-title">One-Tap Control for All Devices</div>
+                <div class="mode-empty-desc">Set up Home, Away, and Disarmed modes to manage your entire home instantly</div>
+                <button class="mode-empty-btn" onclick="startGuidedSetup()">Set Up</button>
+              </div>
             </div>
           </div>
           <!-- Populated scene cards (hidden initially) -->
