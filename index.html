@@ -71,15 +71,88 @@ body {
   padding: 16px 20px 12px;
 }
 .section-title { font-size: 17px; font-weight: 700; color: #333; }
-.section-title-add {
-  display: flex; align-items: center; justify-content: center;
-  width: 28px; height: 28px; border-radius: 8px; font-size: 20px;
-  color: #2196F3; cursor: pointer; background: #f0f7ff; border: none; font-weight: 500;
-  line-height: 1;
+.section-title-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 12px;
 }
-.section-title-add:hover { background: #e0f0ff; }
 
-/* Guidance Card */
+/* Mode empty state */
+.mode-empty-card {
+  margin: 0 20px 16px; padding: 20px 16px 24px;
+  background: linear-gradient(135deg, #f0f7ff 0%, #e8f4fd 100%);
+  border-radius: 16px; border: 1px solid #e0f0ff;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+.mode-empty-illustration {
+  width: 100%; height: 120px; display: flex; align-items: center;
+  justify-content: center; gap: 16px; margin-bottom: 16px;
+  position: relative;
+}
+/* Phone mockup on left */
+.mode-empty-phone {
+  width: 80px; height: 110px; background: #fff; border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12); position: relative; overflow: hidden;
+  flex-shrink: 0;
+}
+.mode-empty-phone-header {
+  height: 14px; background: #f5f5f5; display: flex; align-items: center;
+  justify-content: center;
+}
+.mode-empty-phone-notch {
+  width: 20px; height: 4px; background: #e0e0e0; border-radius: 2px;
+}
+.mode-empty-phone-body {
+  padding: 6px 6px 4px; display: flex; flex-direction: column;
+  align-items: center; gap: 3px;
+}
+.mode-empty-phone-title {
+  width: 40px; height: 4px; background: #333; border-radius: 2px;
+}
+.mode-empty-phone-sub {
+  width: 50px; height: 3px; background: #ccc; border-radius: 2px;
+}
+.mode-empty-phone-btn {
+  width: 50px; height: 8px; background: #2196F3; border-radius: 4px;
+  margin-top: 2px;
+}
+.mode-empty-phone-btn-inner {
+  width: 16px; height: 3px; background: #fff; border-radius: 2px;
+  margin: 0 auto;
+}
+.mode-empty-phone-devices {
+  display: flex; gap: 2px; margin-top: 2px;
+}
+.mode-empty-phone-dev {
+  width: 14px; height: 14px; background: #f0f0f0; border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 7px;
+}
+/* Device icons on right */
+.mode-empty-devices-side {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+}
+.mode-empty-dev-icon {
+  width: 30px; height: 30px; background: #fff; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  animation: floatDevice 3s ease-in-out infinite;
+}
+.mode-empty-dev-icon:nth-child(even) { animation-delay: -1.5s; }
+.mode-empty-title {
+  font-size: 14px; font-weight: 600; color: #333; margin-bottom: 4px;
+}
+.mode-empty-desc {
+  font-size: 11px; color: #999; line-height: 1.4; margin-bottom: 14px;
+  max-width: 240px;
+}
+.mode-empty-btn {
+  padding: 8px 32px; border-radius: 10px; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; background: #2196F3; color: #fff;
+  transition: background 0.2s;
+}
+.mode-empty-btn:hover { background: #1976D2; }
+
+/* Guidance Card (kept for backward compat but hidden) */
 .guidance-card {
   margin: 0 20px 16px; background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%);
   border-radius: 16px; padding: 20px; display: flex; flex-direction: column;
@@ -644,21 +717,39 @@ body {
         <div id="modeArea">
           <div class="section-title-row">
             <div class="section-title">Mode</div>
-            <button class="section-title-add" onclick="startGuidedSetup()">+</button>
           </div>
-          <div id="guidanceCard">
-            <div class="guidance-card" onclick="startGuidedSetup()">
-              <div class="guidance-illustration">
-                <span class="guidance-house">&#127968;</span>
-                <div class="guidance-devices">
-                  <span>&#128249;</span>
-                  <span>&#128247;</span>
-                  <span>&#128682;</span>
+          <div id="modeEmptyState">
+            <div class="mode-empty-card">
+              <div class="mode-empty-illustration">
+                <div class="mode-empty-phone">
+                  <div class="mode-empty-phone-header">
+                    <div class="mode-empty-phone-notch"></div>
+                  </div>
+                  <div class="mode-empty-phone-body">
+                    <div class="mode-empty-phone-title">Smart Mode</div>
+                    <div class="mode-empty-phone-sub">One-tap home control</div>
+                    <div class="mode-empty-phone-btn">
+                      <div class="mode-empty-phone-btn-inner"></div>
+                    </div>
+                    <div class="mode-empty-phone-devices">
+                      <div class="mode-empty-phone-dev">&#128249;</div>
+                      <div class="mode-empty-phone-dev">&#128247;</div>
+                      <div class="mode-empty-phone-dev">&#128682;</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mode-empty-devices-side">
+                  <div class="mode-empty-dev-icon">&#128249;</div>
+                  <div class="mode-empty-dev-icon">&#128247;</div>
+                  <div class="mode-empty-dev-icon">&#128663;</div>
+                  <div class="mode-empty-dev-icon">&#128682;</div>
+                  <div class="mode-empty-dev-icon">&#127968;</div>
+                  <div class="mode-empty-dev-icon">&#128161;</div>
                 </div>
               </div>
-              <div class="guidance-title">Take Control of Your Home with Modes</div>
-              <div class="guidance-desc">Set your entire home's state with one tap</div>
-              <button class="guidance-btn" onclick="event.stopPropagation(); startGuidedSetup()">Set Up Now</button>
+              <div class="mode-empty-title">Control All Devices with One Tap</div>
+              <div class="mode-empty-desc">Set up Home, Away, and Disarmed modes to control your entire home instantly</div>
+              <button class="mode-empty-btn" onclick="startGuidedSetup()">Set Up</button>
             </div>
           </div>
           <!-- Populated scene cards (hidden initially) -->
@@ -708,7 +799,6 @@ body {
         <div id="automationArea">
           <div class="section-title-row">
             <div class="section-title">Automation</div>
-            <button class="section-title-add" onclick="navigateTo('pageAddAutomation')">+</button>
           </div>
           <div class="automation-empty">
             <div class="automation-empty-icon">&#9881;&#65039;</div>
@@ -1240,10 +1330,9 @@ function advanceToNext() {
 }
 
 function showPopulatedMain() {
-  // Hide guidance card, show scene cards
-  document.getElementById('guidanceCard').style.display = 'none';
+  // Hide empty state, show scene cards
+  document.getElementById('modeEmptyState').style.display = 'none';
   document.getElementById('sceneCardsArea').style.display = 'block';
-  // Change page title from "My Scenes" to show modes are set up
   navigateTo('pageMain');
 }
 
