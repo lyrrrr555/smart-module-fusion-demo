@@ -297,10 +297,11 @@ body {
 /* Automation empty state */
 .automation-empty {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 40px 20px 48px;
+  padding: 32px 20px 48px;
 }
 .automation-empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.3; }
-.automation-empty-text { font-size: 14px; color: #999; margin-bottom: 16px; }
+.automation-empty-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 4px; text-align: center; }
+.automation-empty-desc { font-size: 11px; color: #999; line-height: 1.4; margin-bottom: 16px; text-align: center; }
 .automation-add-btn {
   padding: 10px 24px; border-radius: 10px; font-size: 14px; font-weight: 600;
   cursor: pointer; border: none; background: #2196F3; color: #fff;
@@ -774,7 +775,8 @@ body {
           </div>
           <div class="automation-empty">
             <div class="automation-empty-icon">&#9881;&#65039;</div>
-            <div class="automation-empty-text">Make your home smarter — automatically control devices when things happen</div>
+            <div class="automation-empty-title">Make Your Home Smarter</div>
+            <div class="automation-empty-desc">Automatically control devices when things happen</div>
             <button class="automation-add-btn" onclick="navigateTo('pageAddAutomation')">+ Add Automation</button>
           </div>
         </div>
