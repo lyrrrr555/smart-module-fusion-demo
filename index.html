@@ -161,6 +161,14 @@ body {
 }
 .mode-empty-btn:hover { background: #1976D2; }
 
+/* Mode quick setup button in title row */
+.mode-quick-setup-btn {
+  padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  color: #2196F3; cursor: pointer; background: #f0f7ff; border: none;
+  transition: background 0.2s;
+}
+.mode-quick-setup-btn:hover { background: #e0f0ff; }
+
 /* Guidance Card (kept for backward compat but hidden) */
 .guidance-card {
   margin: 0 20px 16px; background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%);
@@ -726,6 +734,7 @@ body {
         <div id="modeArea">
           <div class="section-title-row">
             <div class="section-title">Mode</div>
+            <button class="mode-quick-setup-btn" onclick="startGuidedSetup()">+ Quick Setup Mode</button>
           </div>
           <div id="modeEmptyState">
             <div class="mode-empty-card">
@@ -811,7 +820,7 @@ body {
           </div>
           <div class="automation-empty">
             <div class="automation-empty-icon">&#9881;&#65039;</div>
-            <div class="automation-empty-text">No automation created yet</div>
+            <div class="automation-empty-text">Make your home smarter — automatically control devices when things happen</div>
             <button class="automation-add-btn" onclick="navigateTo('pageAddAutomation')">+ Add Automation</button>
           </div>
         </div>
