@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Smart Module Fusion - Interactive Demo</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+  background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 20px;
+}
+
+.page-title-bar { text-align: center; padding: 0 20px 20px; }
+.page-title-bar h1 { font-size: 20px; font-weight: 700; color: #333; margin-bottom: 4px; }
+.page-title-bar p { font-size: 13px; color: #999; }
+
+.phone-frame {
+  width: 375px; height: 812px; background: #fff; border-radius: 44px; overflow: hidden;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.05);
+  position: relative;
+}
+.status-bar {
+  height: 54px; padding: 14px 24px 0; display: flex; justify-content: space-between; align-items: center;
+  background: #fff; position: relative; z-index: 10;
+}
+.status-bar .time { font-size: 15px; font-weight: 600; }
+.status-bar .icons { display: flex; gap: 6px; align-items: center; font-size: 12px; }
+
+.screen { height: calc(100% - 54px); overflow-y: hidden; background: #fff; display: flex; flex-direction: column; position: relative; }
+.screen-inner { flex: 1; overflow-y: auto; padding-bottom: 80px; }
+
+/* Pages */
+.page { display: none; flex-direction: column; height: 100%; }
+.page.active { display: flex; }
+
+/* Header */
+.smart-header { background: #fff; padding: 16px 20px 0; }
+.smart-header h1 { font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.home-select { font-size: 14px; color: #666; }
+.tab-bar { display: flex; gap: 0; background: #fff; padding: 12px 20px 0; }
+.tab-item { padding: 8px 0; margin-right: 24px; font-size: 15px; color: #999; cursor: pointer;
+  border-bottom: 2px solid transparent; font-weight: 500; }
+.tab-item.active { color: #333; border-bottom-color: #2196F3; }
+
+/* Detail Header */
+.detail-header {
+  background: #fff; padding: 12px 20px; display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid #f0f0f0; position: relative;
+}
+.back-btn { width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent;
+  cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; color: #333; }
+.detail-title-input {
+  font-size: 17px; font-weight: 600; flex: 1; text-align: center;
+  border: none; outline: none; background: transparent; color: #333;
+  padding: 4px 8px; border-radius: 6px;
+}
+.detail-title-input:hover { background: #f5f5f5; }
+.detail-title-input:focus { background: #f0f7ff; }
+.detail-title { font-size: 17px; font-weight: 600; flex: 1; text-align: center; }
+.skip-link { color: #2196F3; font-size: 14px; font-weight: 500; cursor: pointer; background: none; border: none; }
+.save-link { color: #2196F3; font-size: 14px; font-weight: 500; cursor: pointer; background: none; border: none; }
+.delete-link { color: #ff4444; font-size: 14px; cursor: pointer; }
+.add-btn { width: 28px; height: 28px; border-radius: 50%; background: #2196F3; color: #fff;
+  border: none; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+/* Section Titles */
+.section-title-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 12px;
+}
+.section-title { font-size: 17px; font-weight: 700; color: #333; }
+.section-title-add {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 8px; font-size: 20px;
+  color: #2196F3; cursor: pointer; background: #f0f7ff; border: none; font-weight: 500;
+  line-height: 1;
+}
+.section-title-add:hover { background: #e0f0ff; }
+
+/* Guidance Card */
+.guidance-card {
+  margin: 0 20px 16px; background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%);
+  border-radius: 16px; padding: 20px; display: flex; flex-direction: column;
+  align-items: center; text-align: center; cursor: pointer; transition: all 0.2s;
+  border: 1px solid #e0f0ff;
+}
+.guidance-card:hover { background: linear-gradient(135deg, #dceefb 0%, #e5f1ff 100%); }
+.guidance-illustration {
+  width: 160px; height: 100px; background: rgba(255,255,255,0.7); border-radius: 12px;
+  margin-bottom: 16px; display: flex; align-items: center; justify-content: center;
+  font-size: 48px; position: relative; overflow: hidden;
+}
+.guidance-house { font-size: 56px; opacity: 0.6; }
+.guidance-devices {
+  position: absolute; bottom: 6px; left: 10px; right: 10px;
+  display: flex; justify-content: space-around; font-size: 16px; opacity: 0.5;
+}
+.guidance-title {
+  font-size: 15px; font-weight: 600; color: #333; line-height: 1.4; margin-bottom: 16px;
+  max-width: 280px;
+}
+.guidance-desc { font-size: 12px; color: #666; line-height: 1.4; margin-bottom: 16px; }
+.guidance-btn {
+  padding: 10px 28px; border-radius: 10px; font-size: 14px; font-weight: 600;
+  cursor: pointer; border: none; background: #2196F3; color: #fff;
+  transition: background 0.2s;
+}
+.guidance-btn:hover { background: #1976D2; }
+
+/* Step indicator */
+.step-indicator {
+  display: flex; gap: 8px; justify-content: center; padding: 16px 20px 0;
+}
+.step-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: #e0e0e0; transition: all 0.3s;
+}
+.step-dot.active { background: #2196F3; width: 24px; border-radius: 4px; }
+.step-dot.done { background: #4caf50; }
+
+/* Setup illustration */
+.setup-illustration {
+  padding: 16px 20px 12px; text-align: center;
+}
+.setup-ill-scene {
+  width: 100%; height: 180px; border-radius: 16px; overflow: hidden;
+  background: linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%);
+  position: relative; margin-bottom: 14px;
+}
+.setup-ground {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+  background: linear-gradient(180deg, #c8e6c9 0%, #a5d6a7 100%);
+}
+.setup-house {
+  position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+}
+.house-body {
+  width: 100px; height: 60px; background: #fff; border-radius: 4px;
+  position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.house-roof {
+  width: 0; height: 0; border-left: 60px solid transparent; border-right: 60px solid transparent;
+  border-bottom: 35px solid #1565c0; position: relative; left: -10px;
+}
+.house-door {
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 20px; height: 30px; background: #1565c0; border-radius: 3px 3px 0 0;
+}
+.house-window {
+  position: absolute; width: 18px; height: 18px; background: #bbdefb;
+  border: 2px solid #90caf9; border-radius: 2px;
+}
+.house-window.left { top: 10px; left: 10px; }
+.house-window.right { top: 10px; right: 10px; }
+/* Device icons floating */
+.scene-device {
+  position: absolute; width: 36px; height: 36px; background: #fff;
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  animation: floatDevice 3s ease-in-out infinite;
+}
+.scene-device:nth-child(odd) { animation-delay: -1.5s; }
+@keyframes floatDevice {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.scene-home .scene-device:nth-child(1) { top: 20px; left: 16px; }
+.scene-home .scene-device:nth-child(2) { top: 50px; right: 20px; }
+.scene-home .scene-device:nth-child(3) { top: 80px; left: 10px; }
+.scene-away .scene-device:nth-child(1) { top: 16px; left: 16px; }
+.scene-away .scene-device:nth-child(2) { top: 16px; right: 16px; }
+.scene-away .scene-device:nth-child(3) { top: 50px; left: 10px; }
+.scene-away .scene-device:nth-child(4) { top: 50px; right: 10px; }
+.scene-away .scene-device:nth-child(5) { top: 85px; left: 50%; transform: translateX(-50%); }
+.scene-disarm .scene-device:nth-child(1) { top: 60px; left: 50%; transform: translateX(-50%); opacity: 0.4; }
+.scene-disarm .scene-device::after {
+  content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.5);
+  border-radius: 10px;
+}
+
+.setup-ill-title { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 4px; }
+.setup-ill-desc { font-size: 12px; color: #999; line-height: 1.4; }
+
+/* Scene Cards (demo populated state) */
+.scene-section { padding: 0 20px 16px; background: transparent; }
+.scene-card {
+  display: flex; align-items: center; justify-content: space-between; padding: 16px;
+  background: #fff; border-radius: 14px; margin-bottom: 10px; cursor: pointer;
+  transition: all 0.2s; border: 1px solid #f0f0f0;
+}
+.scene-card:hover { background: #f0f1f3; }
+.scene-card.active-scene { border-color: #2196F3; background: #f0f7ff; }
+.scene-card-left { display: flex; align-items: center; gap: 12px; }
+.scene-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; font-size: 20px; }
+.scene-icon.home { background: #e3f2fd; }
+.scene-icon.away { background: #fff3e0; }
+.scene-icon.disarm { background: #e8f5e9; }
+.scene-icon.custom { background: #f3e5f5; }
+.scene-name { font-size: 15px; font-weight: 500; }
+.scene-status { font-size: 12px; color: #999; margin-top: 2px; }
+.scene-card-right { display: flex; align-items: center; gap: 8px; }
+.scene-settings { width: 28px; height: 28px; border-radius: 8px; background: #eee; display: flex;
+  align-items: center; justify-content: center; cursor: pointer; border: none; font-size: 14px; }
+
+/* Device cards */
+.device-section { padding: 0 20px; }
+.device-card {
+  display: flex; align-items: center; padding: 14px 16px; background: #f8f9fa; border-radius: 14px;
+  margin-bottom: 8px; cursor: pointer; transition: all 0.2s;
+}
+.device-card:hover { background: #f0f1f3; }
+.device-card:active { background: #e8e9eb; }
+.device-checkbox {
+  width: 22px; height: 22px; border-radius: 6px; border: 2px solid #d0d0d0; margin-right: 12px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
+  transition: all 0.2s;
+}
+.device-checkbox.checked { background: #2196F3; border-color: #2196F3; }
+.device-checkbox.checked::after { content: '\2713'; color: #fff; font-size: 14px; font-weight: 600; }
+.device-thumb {
+  width: 44px; height: 44px; border-radius: 10px; background: #e8e8e8; margin-right: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
+}
+.device-info { flex: 1; }
+.device-name { font-size: 14px; font-weight: 500; }
+.device-mode { font-size: 12px; color: #2196F3; margin-top: 2px; }
+.device-mode.disarmed { color: #999; }
+.device-arrow { color: #ccc; font-size: 16px; }
+
+/* Enable Mode button */
+.enable-mode-area {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 16px 20px 24px; background: #fff;
+  border-top: 1px solid #f0f0f0; z-index: 200;
+}
+.enable-mode-btn {
+  display: block; width: 100%; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600;
+  cursor: pointer; border: none; background: #2196F3; color: #fff;
+  transition: background 0.2s;
+}
+.enable-mode-btn:hover { background: #1976D2; }
+
+/* Automation empty state */
+.automation-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 40px 20px 48px;
+}
+.automation-empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.3; }
+.automation-empty-text { font-size: 14px; color: #999; margin-bottom: 16px; }
+.automation-add-btn {
+  padding: 10px 24px; border-radius: 10px; font-size: 14px; font-weight: 600;
+  cursor: pointer; border: none; background: #2196F3; color: #fff;
+  transition: background 0.2s;
+}
+.automation-add-btn:hover { background: #1976D2; }
+
+/* Empty state */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 60px 20px 48px;
+}
+.empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.3; }
+.empty-text { font-size: 14px; color: #999; text-align: center; }
+
+/* Trigger cards */
+.trigger-section { padding: 12px 20px; }
+.trigger-card {
+  display: flex; align-items: center; gap: 14px; padding: 16px;
+  background: #fff; border-radius: 14px; margin-bottom: 10px;
+  cursor: pointer; transition: all 0.2s;
+}
+.trigger-card:hover { background: #f8f9fa; }
+.trigger-icon {
+  width: 44px; height: 44px; border-radius: 12px; display: flex;
+  align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
+}
+.trigger-icon.schedule-icon { background: linear-gradient(135deg, #e3f2fd, #bbdefb); }
+.trigger-icon.device-icon { background: linear-gradient(135deg, #fff3e0, #ffe0b2); }
+.trigger-card-info { flex: 1; }
+.trigger-card-name { font-size: 15px; font-weight: 600; color: #333; }
+.trigger-card-desc { font-size: 12px; color: #999; margin-top: 2px; }
+.trigger-arrow { color: #ccc; font-size: 18px; }
+
+/* Schedule rule list */
+.add-time-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  margin: 8px 20px 16px; padding: 12px; border-radius: 12px;
+  border: 1px solid #2196F3; background: #fff; color: #2196F3;
+  font-size: 14px; font-weight: 600; cursor: pointer; width: calc(100% - 40px);
+}
+.add-time-btn:hover { background: #e3f2fd; }
+.schedule-rule-list { padding: 0 20px 20px; }
+.schedule-rule-item {
+  background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 10px;
+  border: 1px solid #f0f0f0; cursor: pointer; transition: all 0.2s;
+}
+.schedule-rule-item:hover { background: #f8f9fa; }
+.schedule-rule-item-top {
+  display: flex; align-items: center; gap: 8px;
+}
+.schedule-rule-item-time {
+  font-size: 15px; font-weight: 600; color: #333;
+}
+.schedule-rule-item-mode {
+  font-size: 12px; font-weight: 600; color: #fff; padding: 3px 10px;
+  border-radius: 6px; margin-left: auto;
+}
+.schedule-rule-item-mode.mode-home { background: #4caf50; }
+.schedule-rule-item-mode.mode-away { background: #ff9800; }
+.schedule-rule-item-mode.mode-disarm { background: #9e9e9e; }
+
+/* Time picker wheel */
+.time-picker-section {
+  background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 12px;
+}
+.time-picker-section-title {
+  font-size: 13px; color: #999; margin-bottom: 12px; font-weight: 500;
+}
+.time-picker-wheel-row {
+  display: flex; justify-content: center; gap: 8px; align-items: center;
+}
+.time-wheel {
+  width: 60px; height: 100px; overflow-y: auto; border: 1px solid #f0f0f0;
+  border-radius: 10px; background: #fafafa; text-align: center;
+  scrollbar-width: none;
+}
+.time-wheel::-webkit-scrollbar { display: none; }
+.time-wheel-item {
+  padding: 10px 0; font-size: 15px; color: #999; cursor: pointer;
+  transition: all 0.15s;
+}
+.time-wheel-item:hover { color: #333; }
+.time-wheel-item.active {
+  background: #2196F3; color: #fff; font-weight: 600; border-radius: 8px;
+}
+.time-colon { font-size: 20px; color: #ccc; font-weight: 300; }
+
+/* Mode selector */
+.mode-selector-section {
+  background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 12px;
+}
+.mode-selector-section-title {
+  font-size: 13px; color: #999; margin-bottom: 12px; font-weight: 500;
+}
+.mode-selector-option {
+  display: flex; align-items: center; gap: 12px; padding: 12px 0;
+  cursor: pointer; border-bottom: 1px solid #f5f5f5;
+}
+.mode-selector-option:last-child { border-bottom: none; }
+.mode-selector-option-icon {
+  width: 32px; height: 32px; border-radius: 8px; display: flex;
+  align-items: center; justify-content: center; font-size: 16px;
+}
+.mode-selector-option-icon.icon-home { background: #e3f2fd; }
+.mode-selector-option-icon.icon-away { background: #fff3e0; }
+.mode-selector-option-icon.icon-disarm { background: #f5f5f5; }
+.mode-selector-option-name { font-size: 14px; color: #333; }
+.mode-selector-check {
+  margin-left: auto; width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid #d0d0d0; display: flex; align-items: center;
+  justify-content: center;
+}
+.mode-selector-option.selected .mode-selector-check {
+  background: #2196F3; border-color: #2196F3;
+}
+.mode-selector-option.selected .mode-selector-check::after {
+  content: '\2713'; color: #fff; font-size: 11px;
+}
+
+/* Edit Group */
+.edit-group-section { padding: 20px; }
+.edit-group-label { font-size: 15px; font-weight: 500; color: #333; margin-bottom: 8px; }
+.edit-group-input {
+  width: 100%; padding: 14px 16px; border: 1px solid #e0e0e0; border-radius: 12px;
+  font-size: 15px; color: #333; background: #fff; outline: none; margin-bottom: 20px;
+}
+.edit-group-input:focus { border-color: #2196F3; }
+.edit-group-desc { font-size: 14px; color: #555; line-height: 1.5; margin-bottom: 16px; }
+.delete-btn-full {
+  display: block; width: 100%; padding: 16px; border: 1px solid #f0f0f0; border-radius: 14px;
+  background: #fff; font-size: 16px; color: #e53935; text-align: center; cursor: pointer;
+  margin-top: auto;
+}
+
+/* Device Setting */
+.mode-setting-header { text-align: center; padding: 20px; background: #fff; }
+.device-detail-image, .device-image { width: 120px; height: 80px; background: #f5f5f5; border-radius: 12px; margin: 0 auto 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.device-detail-name { font-size: 14px; color: #999; }
+.device-subtitle { font-size: 12px; color: #999; }
+.disarm-btn-wrapper {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 24px; background: #fff;
+}
+.disarm-mode-label { display: flex; align-items: center; gap: 10px; }
+.disarm-mode-icon { font-size: 20px; }
+.disarm-mode-text { font-size: 16px; font-weight: 600; color: #333; }
+.disarm-mode-text.dimmed { color: #999; }
+.disarm-check-btn {
+  display: flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 10px;
+  border: 2px solid #d0d0d0; background: #fff; cursor: pointer; transition: all 0.2s;
+  font-size: 13px; font-weight: 500; color: #666;
+}
+.disarm-check-btn.checked { border-color: #ff9800; background: #fff8e1; color: #e65100; }
+.disarm-check-icon {
+  width: 18px; height: 18px; border-radius: 4px; border: 2px solid #d0d0d0;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0;
+}
+.disarm-check-btn.checked .disarm-check-icon { background: #ff9800; border-color: #ff9800; }
+.disarm-check-btn.checked .disarm-check-icon::after { content: '\2713'; color: #fff; font-size: 12px; font-weight: 700; }
+.settings-area { transition: opacity 0.3s, filter 0.3s; }
+.settings-area.disabled { opacity: 0.4; pointer-events: none; filter: grayscale(100%); }
+.setting-section { padding: 16px 20px; }
+.setting-section-title { font-size: 13px; color: #999; margin-bottom: 12px; text-transform: uppercase; }
+.setting-row {
+  display: flex; align-items: center; justify-content: space-between; padding: 14px 16px;
+  background: #fff; margin-bottom: 1px;
+}
+.setting-row:first-of-type { border-radius: 12px 12px 0 0; }
+.setting-row:last-of-type { border-radius: 0 0 12px 12px; margin-bottom: 0; }
+.setting-row-left { display: flex; align-items: center; gap: 10px; }
+.setting-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.setting-label { font-size: 14px; }
+.setting-value { font-size: 14px; color: #999; display: flex; align-items: center; gap: 4px; }
+.checkbox-setting {
+  width: 20px; height: 20px; border: 2px solid #d0d0d0; border-radius: 4px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.checkbox-setting.checked { background: #2196F3; border-color: #2196F3; }
+.checkbox-setting.checked::after { content: '\2713'; color: #fff; font-size: 12px; }
+.disabled-text { color: #ff9800; font-size: 12px; }
+.help-link { color: #2196F3; font-size: 13px; cursor: pointer; padding: 8px 20px; }
+
+/* Schedule recommend card */
+.schedule-recommend-card {
+  background: #fff; border-radius: 12px; padding: 12px 16px; margin: 0 20px 12px;
+  border: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between;
+}
+.schedule-recommend-left { display: flex; align-items: center; gap: 10px; }
+.schedule-recommend-icon {
+  width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center;
+  justify-content: center; font-size: 20px;
+}
+.schedule-recommend-icon.lightning { background: linear-gradient(135deg, #fff3e0, #ffe0b2); }
+.schedule-recommend-title { font-size: 14px; font-weight: 600; color: #333; }
+.schedule-recommend-desc { font-size: 12px; color: #999; margin-top: 2px; }
+.schedule-recommend-btn {
+  padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; background: #2196F3; color: #fff; white-space: nowrap;
+  transition: background 0.2s; flex-shrink: 0;
+}
+.schedule-recommend-btn:hover { background: #1976D2; }
+
+/* Migration */
+.setup-hero { text-align: center; padding: 24px 20px 20px; }
+.setup-hero-illustration {
+  display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 16px;
+}
+.hero-house { font-size: 48px; }
+.hero-arrows { display: flex; flex-direction: column; gap: 6px; }
+.hero-arrow-item { display: flex; align-items: center; gap: 8px; }
+.hero-time-tag { font-size: 11px; color: #999; width: 36px; text-align: right; }
+.hero-mode-dot { width: 14px; height: 14px; border-radius: 50%; }
+.home-dot-lg { background: #4caf50; }
+.away-dot-lg { background: #ff9800; }
+.disarm-dot-lg { background: #ccc; }
+.setup-hero-text { font-size: 14px; color: #666; line-height: 1.5; }
+.setup-card {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 10px;
+  cursor: pointer; transition: all 0.2s;
+}
+.setup-card:hover { background: #fafafa; }
+.setup-card-left { display: flex; align-items: center; gap: 12px; }
+.setup-card-icon { font-size: 24px; }
+.setup-card-title { font-size: 15px; font-weight: 600; color: #333; }
+.setup-card-desc { font-size: 12px; color: #999; margin-top: 2px; }
+.setup-card-action { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.setup-add-btn {
+  width: 28px; height: 28px; border-radius: 50%; border: 2px solid #2196F3; background: #fff;
+  color: #2196F3; font-size: 18px; font-weight: 500; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.setup-add-btn:hover { background: #e3f2fd; }
+.setup-enabled-tag {
+  display: none; font-size: 12px; font-weight: 600; color: #4caf50; background: #e8f5e9;
+  padding: 4px 10px; border-radius: 8px; white-space: nowrap;
+}
+.setup-card.added .setup-add-btn { display: none; }
+.setup-card.added .setup-enabled-tag { display: inline-block; }
+.recommended-badge {
+  font-size: 10px; font-weight: 600; color: #2196F3; background: #e3f2fd;
+  padding: 3px 8px; border-radius: 8px;
+}
+.setup-card.added .recommended-badge { display: none; }
+.migration-footer-text { font-size: 12px; color: #bbb; text-align: center; padding: 12px 20px; }
+.migration-confirm-btn {
+  display: block; width: calc(100% - 40px); margin: 0 20px 20px; padding: 16px; border-radius: 14px;
+  background: #2196F3; color: #fff; font-size: 16px; font-weight: 600;
+  border: none; cursor: pointer;
+}
+.migration-confirm-btn:hover { background: #1976D2; }
+
+/* Switch Mode Modal */
+.modal-overlay {
+  display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4); z-index: 200; align-items: flex-end; justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.switch-modal {
+  background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-height: 70%;
+  padding: 24px 20px 34px; animation: slideModalUp 0.3s ease; overflow-y: auto;
+}
+@keyframes slideModalUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.switch-modal-title { font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+.switch-modal-subtitle { font-size: 13px; color: #999; text-align: center; margin-bottom: 20px; line-height: 1.4; }
+.switch-modal-device {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 0; border-top: 1px solid #f0f0f0;
+}
+.switch-modal-device-name { font-size: 15px; font-weight: 500; color: #333; }
+.switch-modal-device-status { font-size: 12px; color: #e53935; }
+.switch-modal-device-mode { font-size: 14px; color: #2196F3; font-weight: 500; }
+.switch-modal-close {
+  display: block; width: 100%; margin-top: 20px; padding: 14px; border: 1px solid #e0e0e0;
+  border-radius: 12px; background: #fff; font-size: 16px; color: #333; text-align: center;
+  cursor: pointer; font-weight: 500;
+}
+.switch-modal-close:hover { background: #f8f8f8; }
+
+/* Migration Overlay */
+.migration-overlay {
+  display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 30px;
+}
+.migration-overlay.show { display: flex; }
+.migration-popup {
+  background: #fff; border-radius: 20px; padding: 32px 24px; text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2); width: 100%;
+}
+.migration-popup-icon { font-size: 48px; margin-bottom: 16px; }
+.migration-popup-title { font-size: 20px; font-weight: 700; color: #333; margin-bottom: 10px; line-height: 1.3; }
+.migration-popup-desc { font-size: 14px; color: #777; line-height: 1.6; margin-bottom: 24px; }
+.migration-popup-btn {
+  display: block; width: 100%; padding: 14px; border-radius: 12px; font-size: 16px;
+  font-weight: 600; cursor: pointer; border: none; margin-bottom: 10px;
+}
+.migration-popup-btn.primary { background: #2196F3; color: #fff; }
+.migration-popup-btn.secondary { background: transparent; color: #999; }
+
+/* Toggle switch */
+.toggle-switch {
+  width: 44px; height: 24px; border-radius: 12px; background: #e0e0e0; position: relative;
+  cursor: pointer; transition: background 0.3s; border: none; flex-shrink: 0;
+}
+.toggle-switch.on { background: #2196F3; }
+.toggle-switch::after {
+  content: ''; position: absolute; width: 20px; height: 20px; border-radius: 50%; background: #fff;
+  top: 2px; left: 2px; transition: transform 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle-switch.on::after { transform: translateX(20px); }
+
+/* Schedule Rule card with toggle */
+.schedule-rule-card-toggle {
+  background: #fff; border-radius: 12px; padding: 14px 16px; margin: 0 20px 10px;
+  border: 1px solid #f0f0f0; cursor: pointer; transition: all 0.2s;
+}
+.schedule-rule-card-toggle:hover { background: #fafafa; }
+.schedule-rule-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+}
+.schedule-rule-icon { font-size: 18px; }
+.schedule-rule-name { font-size: 14px; font-weight: 600; color: #333; flex: 1; }
+.schedule-rule-toggle { margin-left: auto; }
+.schedule-rule-times {
+  display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+}
+.schedule-rule-time-tag {
+  font-size: 11px; color: #fff; background: #4caf50; padding: 3px 8px;
+  border-radius: 6px; white-space: nowrap;
+}
+.schedule-rule-time-tag.away-tag { background: #ff9800; }
+.schedule-rule-time-tag.disarm-tag { background: #9e9e9e; }
+.schedule-rule-more {
+  font-size: 11px; color: #999; background: #f5f5f5; padding: 3px 8px;
+  border-radius: 6px;
+}
+
+/* Bottom Nav */
+.bottom-nav {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 83px; background: #fff;
+  border-top: 1px solid #e5e5e5; display: flex; justify-content: space-around; align-items: flex-start;
+  padding-top: 8px; z-index: 100;
+}
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+.nav-item svg { width: 24px; height: 24px; }
+.nav-item span { font-size: 10px; color: #999; }
+.nav-item.active span { color: #2196F3; }
+
+/* Badge */
+.badge-beta { background: #2196F3; color: #fff; font-size: 9px; padding: 1px 5px; border-radius: 6px; margin-left: 2px; }
+
+/* Page transitions */
+.page-enter { animation: pageIn 0.25s ease; }
+@keyframes pageIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+/* Toast */
+.toast {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.75); color: #fff; padding: 12px 24px; border-radius: 10px;
+  font-size: 14px; z-index: 999; display: none; white-space: nowrap;
+}
+.toast.show { display: block; animation: fadeInOut 2s ease; }
+@keyframes fadeInOut { 0% { opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+</style>
+</head>
+<body>
+
+<div class="page-title-bar">
+  <h1>Smart Module Fusion - Interactive Demo</h1>
+  <p>Guided setup &rarr; populated Smart page</p>
+</div>
+
+<div class="phone-frame">
+  <div class="status-bar">
+    <div class="time" id="statusTime">12:29</div>
+    <div class="icons"><span>&#128246;</span><span>&#128245;</span><span>&#128267;79</span></div>
+  </div>
+  <div class="screen">
+
+    <!-- ===== MAIN PAGE (empty / guidance state) ===== -->
+    <div class="page active" id="pageMain">
+      <div class="smart-header">
+        <h1>&#8801; home1 <span class="home-select">&#9662;</span></h1>
+      </div>
+      <div class="tab-bar">
+        <div class="tab-item active">My Scenes</div>
+        <div class="tab-item">Discover</div>
+      </div>
+      <div class="screen-inner">
+        <!-- Mode Section -->
+        <div id="modeArea">
+          <div class="section-title-row">
+            <div class="section-title">Mode</div>
+            <button class="section-title-add" onclick="startGuidedSetup()">+</button>
+          </div>
+          <div id="guidanceCard">
+            <div class="guidance-card" onclick="startGuidedSetup()">
+              <div class="guidance-illustration">
+                <span class="guidance-house">&#127968;</span>
+                <div class="guidance-devices">
+                  <span>&#128249;</span>
+                  <span>&#128247;</span>
+                  <span>&#128682;</span>
+                </div>
+              </div>
+              <div class="guidance-title">Take Control of Your Home with Modes</div>
+              <div class="guidance-desc">Set your entire home's state with one tap</div>
+              <button class="guidance-btn" onclick="event.stopPropagation(); startGuidedSetup()">Set Up Now</button>
+            </div>
+          </div>
+          <!-- Populated scene cards (hidden initially) -->
+          <div id="sceneCardsArea" style="display:none;">
+            <div class="scene-section" style="padding-top: 0;">
+              <div class="scene-card active-scene" onclick="showSwitchModal('Home')">
+                <div class="scene-card-left">
+                  <div class="scene-icon home">&#127968;</div>
+                  <div><div class="scene-name">Home</div><div class="scene-status">Active &middot; 4 devices</div></div>
+                </div>
+                <div class="scene-card-right">
+                  <button class="scene-settings" onclick="event.stopPropagation(); navigateTo('pageEditGroup')">&#9881;&#65039;</button>
+                </div>
+              </div>
+              <div class="scene-card" onclick="showSwitchModal('Away')">
+                <div class="scene-card-left">
+                  <div class="scene-icon away">&#128274;</div>
+                  <div><div class="scene-name">Away</div><div class="scene-status">5 devices</div></div>
+                </div>
+                <div class="scene-card-right">
+                  <button class="scene-settings" onclick="event.stopPropagation(); navigateTo('pageEditGroup')">&#9881;&#65039;</button>
+                </div>
+              </div>
+              <div class="scene-card" onclick="showSwitchModal('Disarm')">
+                <div class="scene-card-left">
+                  <div class="scene-icon disarm">&#128737;&#65039;</div>
+                  <div><div class="scene-name">Disarm</div><div class="scene-status">5 devices</div></div>
+                </div>
+                <div class="scene-card-right">
+                  <button class="scene-settings" onclick="event.stopPropagation(); navigateTo('pageEditGroup')">&#9881;&#65039;</button>
+                </div>
+              </div>
+              <div class="scene-card" onclick="showSwitchModal('Vacation')">
+                <div class="scene-card-left">
+                  <div class="scene-icon custom">&#127796;</div>
+                  <div><div class="scene-name">Vacation</div><div class="scene-status">Custom &middot; 3 devices</div></div>
+                </div>
+                <div class="scene-card-right">
+                  <button class="scene-settings" onclick="event.stopPropagation(); navigateTo('pageEditGroup')">&#9881;&#65039;</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Automation Section -->
+        <div id="automationArea">
+          <div class="section-title-row">
+            <div class="section-title">Automation</div>
+            <button class="section-title-add" onclick="navigateTo('pageAddAutomation')">+</button>
+          </div>
+          <div class="automation-empty">
+            <div class="automation-empty-icon">&#9881;&#65039;</div>
+            <div class="automation-empty-text">No automation created yet</div>
+            <button class="automation-add-btn" onclick="navigateTo('pageAddAutomation')">+ Add Automation</button>
+          </div>
+        </div>
+
+        <!-- Migration trigger button (for demo) -->
+        <div style="text-align:center;padding:8px 20px 20px;">
+          <button onclick="showMigrationPopup()" style="padding:10px 20px;border-radius:12px;border:1px solid #e0e0e0;background:#fff;font-size:13px;color:#666;cursor:pointer;">
+            &#9889; Demo: Show Migration Popup
+          </button>
+        </div>
+      </div>
+
+      <!-- Bottom Nav -->
+      <div class="bottom-nav">
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="#999"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="#999"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span>Events</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="#999"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg><span>Services</span></div>
+        <div class="nav-item active"><svg viewBox="0 0 24 24" fill="#2196F3"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg><span style="color:#2196F3">Smart</span></div>
+        <div class="nav-item"><svg viewBox="0 0 24 24" fill="#999"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-1.99.9-1.99 2L3 20c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm0 10c-2.76 0-5-2.24-5-5h2c0 1.66 1.34 3 3 3s3-1.34 3-3h2c0 2.76-2.24 5-5 5z"/></svg><span>Shop</span></div>
+      </div>
+
+      <!-- Switch Mode Modal -->
+      <div class="modal-overlay" id="switchModal" onclick="closeSwitchModal()">
+        <div class="switch-modal" onclick="event.stopPropagation()">
+          <div class="switch-modal-title" id="switchModalTitle">Home</div>
+          <div class="switch-modal-subtitle" id="switchModalSubtitle">Mode was changed to "Home" at 09:35 AM.</div>
+          <div class="switch-modal-device"><div class="switch-modal-device-name">Front Door Camera</div><div class="switch-modal-device-mode" id="modalDevice1Mode">Home</div></div>
+          <div class="switch-modal-device"><div class="switch-modal-device-name">Backyard Camera</div><div class="switch-modal-device-mode" id="modalDevice2Mode">Home</div></div>
+          <div class="switch-modal-device"><div class="switch-modal-device-name">Garage Camera</div><div class="switch-modal-device-mode" id="modalDevice3Mode">Home</div></div>
+          <div class="switch-modal-device"><div class="switch-modal-device-name">Front Door Lock</div><div class="switch-modal-device-mode" id="modalDevice4Mode">Home</div></div>
+          <div class="switch-modal-device"><div class="switch-modal-device-name">HomeBase HB3</div><div class="switch-modal-device-status">Offline</div><div class="switch-modal-device-mode" id="modalDevice5Mode">Home</div></div>
+          <button class="switch-modal-close" onclick="closeSwitchModal()">Close</button>
+        </div>
+      </div>
+
+      <!-- Migration Overlay -->
+      <div class="migration-overlay" id="migrationOverlay">
+        <div class="migration-popup">
+          <div class="migration-popup-icon">&#9889;</div>
+          <div class="migration-popup-title">Smart mode has been upgraded</div>
+          <div class="migration-popup-desc">We've prepared a recommended setup for you.</div>
+          <button class="migration-popup-btn primary" onclick="navigateTo('pageMigration')">Set Up Now</button>
+          <button class="migration-popup-btn secondary" onclick="hideMigrationPopup()">Later</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SETUP: HOME ===== -->
+    <div class="page" id="pageSetupHome">
+      <div class="detail-header">
+        <button class="back-btn" onclick="goBackToMain()">&#8592;</button>
+        <div class="detail-title">Home</div>
+        <button class="skip-link" onclick="skipMode('Home')">Skip</button>
+      </div>
+      <div class="screen-inner">
+        <div class="step-indicator">
+          <div class="step-dot active"></div>
+          <div class="step-dot"></div>
+          <div class="step-dot"></div>
+        </div>
+        <div class="setup-illustration">
+          <div class="setup-ill-scene scene-home">
+            <div class="scene-device">&#128249;</div>
+            <div class="scene-device">&#128682;</div>
+            <div class="scene-device">&#128247;</div>
+            <div class="setup-house">
+              <div class="house-roof"></div>
+              <div class="house-body">
+                <div class="house-window left"></div>
+                <div class="house-window right"></div>
+                <div class="house-door"></div>
+              </div>
+            </div>
+            <div class="setup-ground"></div>
+          </div>
+          <div class="setup-ill-title">Home Mode</div>
+          <div class="setup-ill-desc">家人在家时，保护室内隐私并监控室外安全</div>
+        </div>
+        <div class="device-section" id="homeDevices"></div>
+      </div>
+      <div class="enable-mode-area">
+        <button class="enable-mode-btn" onclick="enableMode('Home')">Enable Home Mode</button>
+      </div>
+    </div>
+
+    <!-- ===== SETUP: AWAY ===== -->
+    <div class="page" id="pageSetupAway">
+      <div class="detail-header">
+        <button class="back-btn" onclick="goBackToMain()">&#8592;</button>
+        <div class="detail-title">Away</div>
+        <button class="skip-link" onclick="skipMode('Away')">Skip</button>
+      </div>
+      <div class="screen-inner">
+        <div class="step-indicator">
+          <div class="step-dot done"></div>
+          <div class="step-dot active"></div>
+          <div class="step-dot"></div>
+        </div>
+        <div class="setup-illustration">
+          <div class="setup-ill-scene scene-away">
+            <div class="scene-device">&#128249;</div>
+            <div class="scene-device">&#128663;</div>
+            <div class="scene-device">&#128247;</div>
+            <div class="scene-device">&#128682;</div>
+            <div class="scene-device">&#127968;</div>
+            <div class="setup-house">
+              <div class="house-roof"></div>
+              <div class="house-body">
+                <div class="house-window left"></div>
+                <div class="house-window right"></div>
+                <div class="house-door"></div>
+              </div>
+            </div>
+            <div class="setup-ground"></div>
+          </div>
+          <div class="setup-ill-title">Away Mode</div>
+          <div class="setup-ill-desc">离家时，全面监控室内外安全，记录所有异常事件</div>
+        </div>
+        <div class="device-section" id="awayDevices"></div>
+      </div>
+      <div class="enable-mode-area">
+        <button class="enable-mode-btn" onclick="enableMode('Away')">Enable Away Mode</button>
+      </div>
+    </div>
+
+    <!-- ===== SETUP: DISARM ===== -->
+    <div class="page" id="pageSetupDisarm">
+      <div class="detail-header">
+        <button class="back-btn" onclick="goBackToMain()">&#8592;</button>
+        <div class="detail-title">Disarmed</div>
+        <button class="skip-link" onclick="skipMode('Disarm')">Skip</button>
+      </div>
+      <div class="screen-inner">
+        <div class="step-indicator">
+          <div class="step-dot done"></div>
+          <div class="step-dot done"></div>
+          <div class="step-dot active"></div>
+        </div>
+        <div class="setup-illustration">
+          <div class="setup-ill-scene scene-disarm">
+            <div class="scene-device">&#128721;</div>
+            <div class="setup-house">
+              <div class="house-roof" style="border-bottom-color: #78909c;"></div>
+              <div class="house-body" style="background: #f5f5f5;">
+                <div class="house-window left" style="background: #e0e0e0; border-color: #bdbdbd;"></div>
+                <div class="house-window right" style="background: #e0e0e0; border-color: #bdbdbd;"></div>
+                <div class="house-door" style="background: #78909c;"></div>
+              </div>
+            </div>
+            <div class="setup-ground" style="background: linear-gradient(180deg, #e0e0e0 0%, #bdbdbd 100%);"></div>
+          </div>
+          <div class="setup-ill-title">Disarmed Mode</div>
+          <div class="setup-ill-desc">需要完全隐私时，关闭所有监控和录制功能</div>
+        </div>
+        <div class="device-section" id="disarmDevices"></div>
+      </div>
+      <div class="enable-mode-area">
+        <button class="enable-mode-btn" onclick="submitAllModes()">Submit</button>
+      </div>
+    </div>
+
+    <!-- ===== DEVICE DETAIL PAGE ===== -->
+    <div class="page" id="pageDeviceDetail">
+      <div class="detail-header">
+        <button class="back-btn" id="deviceDetailBack" onclick="navigateTo('pageSetupHome')">&#8592;</button>
+        <div class="detail-title" id="deviceDetailTitle">Device</div>
+      </div>
+      <div class="screen-inner">
+        <div class="mode-setting-header">
+          <div class="device-detail-image" id="deviceDetailIcon">&#128249;</div>
+          <div class="device-detail-name" id="deviceDetailName">Front Door Camera</div>
+        </div>
+        <div class="disarm-btn-wrapper">
+          <div class="disarm-mode-label">
+            <span class="disarm-mode-icon" id="devModeIcon">&#127968;</span>
+            <span class="disarm-mode-text" id="devModeText">Home</span>
+          </div>
+          <div class="disarm-check-btn" id="devDisarmBtn" onclick="toggleDevDisarm()">
+            <div class="disarm-check-icon"></div>
+            <span>Disarm</span>
+          </div>
+        </div>
+        <div class="settings-area" id="devSettingsArea">
+          <div class="setting-section">
+            <div class="setting-section-title">Alarm rules</div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#9200;</div><div class="setting-label">Alarm Delay</div></div><div class="setting-value">0s <span style="color:#ccc">&#8250;</span></div></div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#128694;</div><div class="setting-label">Leaving Delay</div></div><div class="setting-value">0s <span style="color:#ccc">&#8250;</span></div></div>
+          </div>
+          <div class="setting-section">
+            <div class="setting-section-title">Set devices rules in this security mode</div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#128065;</div><div class="setting-label">Privacy Mode</div></div><div class="checkbox-setting" onclick="toggleSettingCheck(this)"></div></div>
+            <div class="setting-row"><div style="font-size:12px;color:#999;padding-left:38px;width:100%;">When motion is detected</div></div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#127909;</div><div class="setting-label">Video Recording</div></div><div class="checkbox-setting checked" onclick="toggleSettingCheck(this)"></div></div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#128276;</div><div class="setting-label">Notification</div></div><div class="checkbox-setting checked" onclick="toggleSettingCheck(this)"></div></div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#128226;</div><div class="setting-label">Camera Alarm</div></div><div class="checkbox-setting" onclick="toggleSettingCheck(this)"></div></div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#128161;</div><div class="setting-label">Light Alarm</div></div><span class="disabled-text">Light is disabled</span></div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#128264;</div><div class="setting-label">HomeBase Alarm</div></div><div class="checkbox-setting" onclick="toggleSettingCheck(this)"></div></div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#129726;</div><div class="setting-label">Monitoring Center Help</div></div><div class="checkbox-setting" onclick="toggleSettingCheck(this)"></div></div>
+          </div>
+          <div class="help-link">Learn how to set it up &gt;&gt;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: Edit Group ===== -->
+    <div class="page" id="pageEditGroup">
+      <div class="detail-header" style="background:#f5f5f2;border-bottom:none;">
+        <button class="back-btn" onclick="navigateTo('pageMain')">&#8592;</button>
+        <div class="detail-title" style="text-align:center;">Edit Group</div>
+        <button class="save-link" onclick="showToast('Group saved!'); navigateTo('pageMain')">Save</button>
+      </div>
+      <div class="screen-inner" style="background:#f5f5f2; padding-bottom: 20px;">
+        <div class="edit-group-section">
+          <div class="edit-group-label">Name your Group</div>
+          <input class="edit-group-input" type="text" value="I'm Staying" onclick="this.select()">
+          <div class="edit-group-desc">Select the devices and the device modes that you want to control with this group.</div>
+        </div>
+        <div class="device-section">
+          <div class="device-card" onclick="navigateTo('pageDeviceSetting')">
+            <div class="device-checkbox checked" onclick="event.stopPropagation(); toggleCheck(this)"></div>
+            <div class="device-thumb">&#128249;</div>
+            <div class="device-info"><div class="device-name">Front Door</div><div class="device-mode">home mode</div></div>
+            <div class="device-arrow">&#8250;</div>
+          </div>
+          <div class="device-card">
+            <div class="device-checkbox checked" onclick="event.stopPropagation(); toggleCheck(this)"></div>
+            <div class="device-thumb">&#128247;</div>
+            <div class="device-info"><div class="device-name">Backyard</div><div class="device-mode disarmed">disarm</div></div>
+            <div class="device-arrow">&#8250;</div>
+          </div>
+          <div class="device-card">
+            <div class="device-checkbox checked" onclick="event.stopPropagation(); toggleCheck(this)"></div>
+            <div class="device-thumb">&#128663;</div>
+            <div class="device-info"><div class="device-name">Garage</div><div class="device-mode">home mode</div></div>
+            <div class="device-arrow">&#8250;</div>
+          </div>
+          <div class="device-card">
+            <div class="device-checkbox" onclick="event.stopPropagation(); toggleCheck(this)"></div>
+            <div class="device-thumb">&#129697;</div>
+            <div class="device-info"><div class="device-name">Living Room</div><div class="device-mode disarmed">not managed</div></div>
+            <div class="device-arrow">&#8250;</div>
+          </div>
+          <div class="device-card">
+            <div class="device-checkbox" onclick="event.stopPropagation(); toggleCheck(this)"></div>
+            <div class="device-thumb">&#128719;</div>
+            <div class="device-info"><div class="device-name">Bedroom</div><div class="device-mode disarmed">not managed</div></div>
+            <div class="device-arrow">&#8250;</div>
+          </div>
+          <div class="device-card">
+            <div class="device-checkbox checked" onclick="event.stopPropagation(); toggleCheck(this)"></div>
+            <div class="device-thumb">&#128682;</div>
+            <div class="device-info"><div class="device-name">Front Door Lock</div><div class="device-mode">home mode</div></div>
+            <div class="device-arrow">&#8250;</div>
+          </div>
+        </div>
+        <div style="padding:0 20px 20px;">
+          <button class="delete-btn-full" onclick="showToast('Group deleted'); navigateTo('pageMain')">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: Device Setting ===== -->
+    <div class="page" id="pageDeviceSetting">
+      <div class="detail-header">
+        <button class="back-btn" onclick="navigateTo('pageEditGroup')">&#8592;</button>
+        <div class="detail-title">eufyCam S3 Pro</div>
+      </div>
+      <div class="screen-inner">
+        <div class="mode-setting-header">
+          <div class="device-image">&#128249;</div>
+          <div class="device-subtitle">Front Door Camera</div>
+        </div>
+        <div class="disarm-btn-wrapper">
+          <div class="disarm-mode-label">
+            <span class="disarm-mode-icon" id="modeIcon">&#127968;</span>
+            <span class="disarm-mode-text" id="modeText">Home</span>
+          </div>
+          <div class="disarm-check-btn" id="disarmBtn" onclick="toggleDisarm()">
+            <div class="disarm-check-icon"></div>
+            <span>Disarm</span>
+          </div>
+        </div>
+        <div class="settings-area" id="settingsArea">
+          <div class="setting-section">
+            <div class="setting-section-title">Alarm rules</div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#9200;</div><div class="setting-label">Alarm Delay</div></div><div class="setting-value">0s <span style="color:#ccc">&#8250;</span></div></div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#128694;</div><div class="setting-label">Leaving Delay</div></div><div class="setting-value">0s <span style="color:#ccc">&#8250;</span></div></div>
+          </div>
+          <div class="setting-section">
+            <div class="setting-section-title">Set devices rules in this security mode</div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#128065;</div><div class="setting-label">Privacy Mode</div></div><div class="checkbox-setting" onclick="toggleSettingCheck(this)"></div></div>
+            <div class="setting-row"><div style="font-size:12px;color:#999;padding-left:38px;width:100%;">When motion is detected</div></div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#127909;</div><div class="setting-label">Video Recording</div></div><div class="checkbox-setting checked" onclick="toggleSettingCheck(this)"></div></div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#128276;</div><div class="setting-label">Notification</div></div><div class="checkbox-setting checked" onclick="toggleSettingCheck(this)"></div></div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#128226;</div><div class="setting-label">Camera Alarm</div></div><div class="checkbox-setting" onclick="toggleSettingCheck(this)"></div></div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#128161;</div><div class="setting-label">Light Alarm</div></div><span class="disabled-text">Light is disabled</span></div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#128264;</div><div class="setting-label">HomeBase Alarm</div></div><div class="checkbox-setting" onclick="toggleSettingCheck(this)"></div></div>
+            <div class="setting-row"><div class="setting-row-left"><div class="setting-icon">&#129726;</div><div class="setting-label">Monitoring Center Help</div></div><div class="checkbox-setting" onclick="toggleSettingCheck(this)"></div></div>
+          </div>
+          <div class="help-link">Learn how to set it up &gt;&gt;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: Add Automation (Trigger Selection) ===== -->
+    <div class="page" id="pageAddAutomation">
+      <div class="detail-header">
+        <button class="back-btn" onclick="navigateTo('pageMain')">&#8592;</button>
+        <div class="detail-title">Select Trigger</div>
+        <div style="width:32px;"></div>
+      </div>
+      <div class="screen-inner" style="background:#f5f5f5;">
+        <div class="trigger-section" style="padding-top:12px;">
+          <div class="trigger-card" onclick="selectTrigger('schedule')">
+            <div class="trigger-icon schedule-icon">&#128339;</div>
+            <div class="trigger-card-info">
+              <div class="trigger-card-name">Schedule</div>
+              <div class="trigger-card-desc">Trigger automation at a specific time</div>
+            </div>
+            <div class="trigger-arrow">&#8250;</div>
+          </div>
+          <div class="trigger-card" onclick="showToast('Device Trigger (coming soon)')">
+            <div class="trigger-icon device-icon">&#128249;</div>
+            <div class="trigger-card-info">
+              <div class="trigger-card-name">Device Trigger</div>
+              <div class="trigger-card-desc">Trigger automation by device state change</div>
+            </div>
+            <div class="trigger-arrow">&#8250;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: Schedule (Rule List) ===== -->
+    <div class="page" id="pageSchedule">
+      <div class="detail-header">
+        <button class="back-btn" onclick="navigateTo('pageMain')">&#8592;</button>
+        <div class="detail-title">Schedule</div>
+      </div>
+      <div class="screen-inner" style="background:#f5f5f5;">
+        <button class="add-time-btn" onclick="openSetSchedule()">
+          <span style="font-size:16px;">&#43;</span> Add Time
+        </button>
+        <div class="schedule-rule-list" id="scheduleRuleList"></div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: Set Schedule (Time Picker + Mode) ===== -->
+    <div class="page" id="pageSetSchedule">
+      <div class="detail-header">
+        <button class="back-btn" onclick="navigateTo('pageSchedule')">&#8592;</button>
+        <div class="detail-title">Set Schedule</div>
+        <div style="width:32px;"></div>
+      </div>
+      <div class="screen-inner" style="background:#f5f5f5;">
+        <div style="padding:16px 20px 0;">
+          <div class="time-picker-section">
+            <div class="time-picker-section-title">From Time</div>
+            <div class="time-picker-wheel-row">
+              <div class="time-wheel" id="fromHourWheel"></div>
+              <span class="time-colon">:</span>
+              <div class="time-wheel" id="fromMinWheel"></div>
+              <div class="time-wheel" id="fromAmPmWheel" style="width:52px;"></div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:0 20px;">
+          <div class="time-picker-section">
+            <div class="time-picker-section-title">To Time</div>
+            <div class="time-picker-wheel-row">
+              <div class="time-wheel" id="toHourWheel"></div>
+              <span class="time-colon">:</span>
+              <div class="time-wheel" id="toMinWheel"></div>
+              <div class="time-wheel" id="toAmPmWheel" style="width:52px;"></div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:0 20px 20px;">
+          <div class="mode-selector-section">
+            <div class="mode-selector-section-title">Set Mode</div>
+            <div class="mode-selector-option selected" data-mode="Home" onclick="selectSetScheduleMode(this)">
+              <div class="mode-selector-option-icon icon-home">&#127968;</div>
+              <div class="mode-selector-option-name">Home</div>
+              <div class="mode-selector-check"></div>
+            </div>
+            <div class="mode-selector-option" data-mode="Away" onclick="selectSetScheduleMode(this)">
+              <div class="mode-selector-option-icon icon-away">&#128682;</div>
+              <div class="mode-selector-option-name">Away</div>
+              <div class="mode-selector-check"></div>
+            </div>
+            <div class="mode-selector-option" data-mode="Disarm" onclick="selectSetScheduleMode(this)">
+              <div class="mode-selector-option-icon icon-disarm">&#128721;</div>
+              <div class="mode-selector-option-name">Disarmed</div>
+              <div class="mode-selector-check"></div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:0 20px 20px;">
+          <button onclick="saveScheduleSlot()" style="display:block;width:100%;padding:14px;border-radius:12px;border:none;background:#2196F3;color:#fff;font-size:15px;font-weight:600;cursor:pointer;">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: Migration Setup ===== -->
+    <div class="page" id="pageMigration">
+      <div class="detail-header">
+        <button class="back-btn" onclick="navigateTo('pageMain')">&#8592;</button>
+        <div class="detail-title" style="text-align:center;">Auto Switch</div>
+      </div>
+      <div class="screen-inner" style="background:#f5f5f5;">
+        <div class="setup-hero">
+          <div class="setup-hero-illustration">
+            <div class="hero-house">&#127968;</div>
+            <div class="hero-arrows">
+              <div class="hero-arrow-item"><span class="hero-time-tag">8:00</span><span class="hero-mode-dot home-dot-lg"></span></div>
+              <div class="hero-arrow-item"><span class="hero-time-tag">12:00</span><span class="hero-mode-dot away-dot-lg"></span></div>
+              <div class="hero-arrow-item"><span class="hero-time-tag">18:00</span><span class="hero-mode-dot home-dot-lg"></span></div>
+              <div class="hero-arrow-item"><span class="hero-time-tag">23:00</span><span class="hero-mode-dot disarm-dot-lg"></span></div>
+            </div>
+          </div>
+          <div class="setup-hero-text">Automatically switch your home mode by schedule or location.</div>
+        </div>
+        <div style="padding:0 20px;">
+          <div class="schedule-recommend-card">
+            <div class="schedule-recommend-left">
+              <div class="schedule-recommend-icon lightning">&#9889;</div>
+              <div>
+                <div class="schedule-recommend-title">Switch Mode by Schedule</div>
+                <div class="schedule-recommend-desc">Auto switch modes at set times</div>
+              </div>
+            </div>
+            <button class="schedule-recommend-btn" onclick="applyMigrationSchedule()">Add</button>
+          </div>
+        </div>
+        <div class="migration-footer-text">Based on your previous settings for 3 devices</div>
+        <button class="migration-confirm-btn" onclick="showToast('Configuration saved! Migration complete.'); navigateTo('pageMain')">Set Up Now</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== Guided Setup ==========
+const MODES = ['Home', 'Away', 'Disarm'];
+const MODE_CONFIG = {
+  Home: { icon: '&#127968;', desc: 'Family is at home, only monitor outdoor areas', modeLabel: 'Home', pageId: 'pageSetupHome', containerId: 'homeDevices' },
+  Away: { icon: '&#128682;', desc: 'Everyone has left, monitor all areas with full security', modeLabel: 'Away', pageId: 'pageSetupAway', containerId: 'awayDevices' },
+  Disarm: { icon: '&#128721;', desc: 'Family is at home, no monitoring on any areas', modeLabel: 'Disarmed', pageId: 'pageSetupDisarm', containerId: 'disarmDevices' }
+};
+const DEVICES = [
+  { icon: '&#128249;', name: 'Front Door Camera', mode: 'Home' },
+  { icon: '&#128247;', name: 'Backyard Camera', mode: 'Away' },
+  { icon: '&#128663;', name: 'Garage Camera', mode: 'Home' },
+  { icon: '&#128682;', name: 'Front Door Lock', mode: 'Home' },
+  { icon: '&#127968;', name: 'HomeBase HB3', mode: 'Home' }
+];
+
+let currentStep = 0;
+let skippedModes = [];
+let enabledModes = [];
+let currentDeviceDisarmed = false;
+let currentDeviceDetailPage = null;
+let setupCompleted = false;
+
+function startGuidedSetup() {
+  currentStep = 0;
+  skippedModes = [];
+  enabledModes = [];
+  populateDevices('Home');
+  navigateTo('pageSetupHome');
+}
+
+function populateDevices(mode) {
+  const cfg = MODE_CONFIG[mode];
+  const container = document.getElementById(cfg.containerId);
+  container.innerHTML = '';
+  DEVICES.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'device-card';
+    card.onclick = () => openDeviceDetail(d, mode);
+    card.innerHTML =
+      '<div class="device-checkbox checked" onclick="event.stopPropagation(); toggleCheck(this)"></div>' +
+      '<div class="device-thumb">' + d.icon + '</div>' +
+      '<div class="device-info">' +
+        '<div class="device-name">' + d.name + '</div>' +
+        '<div class="device-mode">' + cfg.modeLabel + ' mode</div>' +
+      '</div>' +
+      '<div class="device-arrow">&#8250;</div>';
+    container.appendChild(card);
+  });
+}
+
+function enableMode(mode) {
+  enabledModes.push(mode);
+  showToast(mode + ' mode enabled!');
+  advanceToNext();
+}
+
+function skipMode(mode) {
+  skippedModes.push(mode);
+  advanceToNext();
+}
+
+function submitAllModes() {
+  enabledModes.push('Disarm');
+  setupCompleted = true;
+  showPopulatedMain();
+  showToast('All modes saved successfully!');
+}
+
+function advanceToNext() {
+  currentStep++;
+  if (currentStep < MODES.length) {
+    const nextMode = MODES[currentStep];
+    populateDevices(nextMode);
+    navigateTo(MODE_CONFIG[nextMode].pageId);
+  } else {
+    setupCompleted = true;
+    showPopulatedMain();
+    showToast('All modes set up! Enjoy your smart security.');
+  }
+}
+
+function showPopulatedMain() {
+  // Hide guidance card, show scene cards
+  document.getElementById('guidanceCard').style.display = 'none';
+  document.getElementById('sceneCardsArea').style.display = 'block';
+  // Change page title from "My Scenes" to show modes are set up
+  navigateTo('pageMain');
+}
+
+function goBackToMain() {
+  // If setup was completed, show populated state
+  if (setupCompleted) {
+    showPopulatedMain();
+  } else {
+    navigateTo('pageMain');
+  }
+}
+
+function openDeviceDetail(device, mode) {
+  currentDeviceDetailPage = mode;
+  document.getElementById('deviceDetailTitle').textContent = device.name;
+  document.getElementById('deviceDetailIcon').innerHTML = device.icon;
+  document.getElementById('deviceDetailName').textContent = device.name;
+  document.getElementById('devModeText').textContent = MODE_CONFIG[mode].modeLabel;
+  currentDeviceDisarmed = false;
+  document.getElementById('devDisarmBtn').classList.remove('checked');
+  document.getElementById('devSettingsArea').classList.remove('disabled');
+  document.getElementById('deviceDetailBack').onclick = () => {
+    navigateTo(MODE_CONFIG[mode].pageId);
+  };
+  navigateTo('pageDeviceDetail');
+}
+
+function toggleDevDisarm() {
+  currentDeviceDisarmed = !currentDeviceDisarmed;
+  const btn = document.getElementById('devDisarmBtn');
+  const settings = document.getElementById('devSettingsArea');
+  const modeText = document.getElementById('devModeText');
+  btn.classList.toggle('checked');
+  if (currentDeviceDisarmed) {
+    settings.classList.add('disabled');
+    modeText.classList.add('dimmed');
+  } else {
+    settings.classList.remove('disabled');
+    modeText.classList.remove('dimmed');
+  }
+}
+
+// ========== Page Navigation ==========
+let pageHistory = [];
+function navigateTo(pageId) {
+  const currentPage = document.querySelector('.page.active');
+  if (currentPage) {
+    pageHistory.push(currentPage.id);
+    currentPage.classList.remove('active');
+  }
+  const page = document.getElementById(pageId);
+  page.classList.add('active');
+  page.classList.remove('page-enter');
+  void page.offsetWidth;
+  page.classList.add('page-enter');
+  if (pageId === 'pageSchedule') renderScheduleRules();
+  if (pageId === 'pageSetSchedule') initTimePickers();
+}
+
+// ========== Switch Mode Modal ==========
+function showSwitchModal(sceneName) {
+  const modal = document.getElementById('switchModal');
+  const title = document.getElementById('switchModalTitle');
+  const subtitle = document.getElementById('switchModalSubtitle');
+  title.textContent = sceneName;
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  subtitle.textContent = 'Mode was changed to "' + sceneName + '" at ' + timeStr + '.';
+  const modeMap = { 'Home': 'Home', 'Away': 'Away', 'Disarm': 'Disarm', 'Vacation': 'Away' };
+  const mode = modeMap[sceneName] || sceneName;
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('modalDevice' + i + 'Mode');
+    if (el) el.textContent = mode;
+  }
+  document.querySelectorAll('#pageMain .scene-card').forEach(c => c.classList.remove('active-scene'));
+  event.currentTarget.classList.add('active-scene');
+  document.querySelectorAll('#pageMain .scene-status').forEach(s => {
+    s.textContent = s.textContent.replace('Active &middot; ', '');
+  });
+  const clickedStatus = event.currentTarget.querySelector('.scene-status');
+  if (clickedStatus && !clickedStatus.innerHTML.includes('Active')) {
+    clickedStatus.innerHTML = 'Active &middot; ' + clickedStatus.innerHTML;
+  }
+  modal.classList.add('show');
+}
+function closeSwitchModal() { document.getElementById('switchModal').classList.remove('show'); }
+
+// ========== Migration Popup ==========
+function showMigrationPopup() { document.getElementById('migrationOverlay').classList.add('show'); }
+function hideMigrationPopup() {
+  document.getElementById('migrationOverlay').classList.remove('show');
+  showToast('Popup dismissed. Red dot reminder on Smart Tab.');
+}
+function applyMigrationSchedule() { showToast('Recommended schedule applied!'); }
+
+// ========== Schedule / Automation Flow ==========
+let scheduleSlots = [
+  { fromH: 8, fromM: 0, fromAP: 'AM', toH: 10, toM: 0, toAP: 'AM', mode: 'Home' },
+  { fromH: 2, fromM: 0, fromAP: 'PM', toH: 6, toM: 0, toAP: 'PM', mode: 'Away' },
+];
+let editingSlotIndex = -1;
+let selFromH = 8, selFromM = 0, selFromAP = 'AM';
+let selToH = 10, selToM = 0, selToAP = 'AM';
+let selMode = 'Home';
+
+function selectTrigger(type) {
+  if (type === 'schedule') navigateTo('pageSchedule');
+}
+
+function openSetSchedule(index) {
+  editingSlotIndex = index !== undefined ? index : -1;
+  if (index >= 0) {
+    const s = scheduleSlots[index];
+    selFromH = s.fromH; selFromM = s.fromM; selFromAP = s.fromAP;
+    selToH = s.toH; selToM = s.toM; selToAP = s.toAP;
+    selMode = s.mode;
+  } else {
+    selFromH = 8; selFromM = 0; selFromAP = 'AM';
+    selToH = 10; selToM = 0; selToAP = 'AM';
+    selMode = 'Home';
+  }
+  initTimePickers();
+  initModeSelection();
+  navigateTo('pageSetSchedule');
+}
+
+function buildWheel(containerId, values, selectedVal, onChange) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  values.forEach(v => {
+    const item = document.createElement('div');
+    item.className = 'time-wheel-item' + (v === selectedVal ? ' active' : '');
+    item.textContent = (typeof v === 'number' && containerId.includes('Min')) ? (v === 0 ? '00' : v) : v;
+    item.onclick = () => {
+      container.querySelectorAll('.time-wheel-item').forEach(el => el.classList.remove('active'));
+      item.classList.add('active');
+      onChange(v);
+    };
+    container.appendChild(item);
+  });
+  const idx = values.indexOf(selectedVal);
+  if (idx >= 0) setTimeout(() => { container.scrollTop = Math.max((idx - 1) * 40, 0); }, 50);
+}
+
+function initTimePickers() {
+  buildWheel('fromHourWheel', Array.from({length: 12}, (_, i) => i + 1), selFromH, v => { selFromH = v; });
+  buildWheel('fromMinWheel', [0,5,10,15,20,25,30,35,40,45,50,55], selFromM, v => { selFromM = v; });
+  buildWheel('fromAmPmWheel', ['AM', 'PM'], selFromAP, v => { selFromAP = v; });
+  buildWheel('toHourWheel', Array.from({length: 12}, (_, i) => i + 1), selToH, v => { selToH = v; });
+  buildWheel('toMinWheel', [0,5,10,15,20,25,30,35,40,45,50,55], selToM, v => { selToM = v; });
+  buildWheel('toAmPmWheel', ['AM', 'PM'], selToAP, v => { selToAP = v; });
+}
+
+function initModeSelection() {
+  document.querySelectorAll('.mode-selector-option').forEach(el => {
+    el.classList.toggle('selected', el.dataset.mode === selMode);
+  });
+}
+
+function selectSetScheduleMode(el) {
+  document.querySelectorAll('.mode-selector-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selMode = el.dataset.mode;
+}
+
+function formatTime12(h, m, ap) {
+  const min = m === 0 ? '00' : m;
+  return h + ':' + min + ' ' + ap;
+}
+
+function saveScheduleSlot() {
+  const slot = {
+    fromH: selFromH, fromM: selFromM, fromAP: selFromAP,
+    toH: selToH, toM: selToM, toAP: selToAP, mode: selMode
+  };
+  if (editingSlotIndex >= 0) {
+    scheduleSlots[editingSlotIndex] = slot;
+  } else {
+    scheduleSlots.push(slot);
+  }
+  renderScheduleRules();
+  showToast(editingSlotIndex >= 0 ? 'Schedule updated!' : 'Time slot added!');
+  navigateTo('pageSchedule');
+}
+
+function renderScheduleRules() {
+  const container = document.getElementById('scheduleRuleList');
+  container.innerHTML = '';
+  scheduleSlots.forEach((slot, idx) => {
+    const item = document.createElement('div');
+    item.className = 'schedule-rule-item';
+    item.onclick = () => openSetSchedule(idx);
+    const modeClass = slot.mode === 'Home' ? 'mode-home' : slot.mode === 'Away' ? 'mode-away' : 'mode-disarm';
+    item.innerHTML =
+      '<div class="schedule-rule-item-top">' +
+        '<span class="schedule-rule-item-time">Monday to Friday ' +
+          formatTime12(slot.fromH, slot.fromM, slot.fromAP) + ' - ' +
+          formatTime12(slot.toH, slot.toM, slot.toAP) +
+        '</span>' +
+        '<span class="schedule-rule-item-mode ' + modeClass + '">' + slot.mode + '</span>' +
+      '</div>';
+    container.appendChild(item);
+  });
+}
+
+// ========== Toggles ==========
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  const modeText = el.closest('.device-card').querySelector('.device-mode');
+  if (!el.classList.contains('checked')) {
+    modeText.textContent = 'not managed';
+    modeText.classList.add('disarmed');
+  } else {
+    modeText.textContent = 'home mode';
+    modeText.classList.remove('disarmed');
+  }
+}
+function toggleSettingCheck(el) { el.classList.toggle('checked'); }
+
+function toggleDisarm() {
+  const btn = document.getElementById('disarmBtn');
+  const settings = document.getElementById('settingsArea');
+  const modeText = document.getElementById('modeText');
+  const modeIcon = document.getElementById('modeIcon');
+  const isDisarmed = btn.classList.contains('checked');
+  if (isDisarmed) {
+    btn.classList.remove('checked');
+    settings.classList.remove('disabled');
+    modeText.textContent = 'Home';
+    modeText.classList.remove('dimmed');
+    modeIcon.textContent = '\uD83C\uDFE0';
+    settings.querySelectorAll('.checkbox-setting').forEach(cb => {
+      if (cb.dataset.wasChecked === 'true') cb.classList.add('checked');
+    });
+    showToast('Disarm unchecked');
+  } else {
+    btn.classList.add('checked');
+    modeText.textContent = 'Disarmed';
+    modeText.classList.add('dimmed');
+    modeIcon.textContent = '\uD83D\uDD15';
+    settings.querySelectorAll('.checkbox-setting').forEach(cb => {
+      cb.dataset.wasChecked = cb.classList.contains('checked') ? 'true' : 'false';
+      cb.classList.remove('checked');
+    });
+    settings.classList.add('disabled');
+    showToast('Disarm checked');
+  }
+}
+
+// ========== Toast ==========
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.remove('show');
+  void toast.offsetWidth;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// ========== Status Bar Time ==========
+function updateTime() {
+  const now = new Date();
+  const h = now.getHours().toString().padStart(2, '0');
+  const m = now.getMinutes().toString().padStart(2, '0');
+  const el = document.getElementById('statusTime');
+  if (el) el.textContent = h + ':' + m;
+}
+updateTime();
+setInterval(updateTime, 60000);
+</script>
+
+</body>
+</html>
