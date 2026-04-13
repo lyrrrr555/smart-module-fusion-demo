@@ -86,51 +86,21 @@ body {
   width: 100%; height: 180px; display: flex; align-items: center;
   justify-content: center; position: relative;
   border-radius: 12px 12px 0 0; overflow: hidden;
-  background: linear-gradient(180deg, #f0f4f8 0%, #ffffff 100%);
+  background: #fff;
 }
-/* Phone mockup on left */
-.mode-empty-phone {
-  width: 120px; height: 150px; background: #fff; border-radius: 14px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1); position: relative; overflow: hidden;
-}
-.mode-empty-phone-header {
-  height: 20px; background: #f5f5f5; display: flex; align-items: center;
-  justify-content: center;
-}
-.mode-empty-phone-notch {
-  width: 30px; height: 6px; background: #e0e0e0; border-radius: 3px;
-}
-.mode-empty-phone-body {
-  padding: 10px 8px 6px; display: flex; flex-direction: column;
-  align-items: center; gap: 5px;
-}
-.mode-empty-phone-title {
-  width: 60px; height: 6px; background: #333; border-radius: 3px;
-}
-.mode-empty-phone-sub {
-  width: 70px; height: 4px; background: #ccc; border-radius: 2px;
-}
-.mode-empty-phone-btn {
-  width: 70px; height: 12px; background: #2196F3; border-radius: 6px;
-  margin-top: 4px;
-}
-.mode-empty-phone-btn-inner {
-  width: 20px; height: 4px; background: #fff; border-radius: 2px;
-  margin: 3px auto 0;
-}
-.mode-empty-phone-devices {
-  display: flex; gap: 4px; margin-top: 4px;
-}
-.mode-empty-phone-dev {
-  width: 18px; height: 18px; background: #f0f0f0; border-radius: 4px;
+/* Central control button */
+.mode-empty-center-btn {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 64px; height: 64px; background: #f0f7ff; border-radius: 16px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 9px;
+  box-shadow: 0 2px 12px rgba(33,150,243,0.15);
+  z-index: 10;
 }
 /* Device icons floating around */
 .mode-empty-dev-float {
-  position: absolute; width: 36px; height: 36px; background: #fff;
-  border-radius: 10px; display: flex; align-items: center; justify-content: center;
-  font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: absolute; width: 40px; height: 40px; background: #fff;
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   animation: floatDevice 3s ease-in-out infinite;
 }
 .mode-empty-dev-float:nth-child(even) { animation-delay: -1.5s; }
@@ -138,12 +108,12 @@ body {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
 }
-.mode-empty-dev-float.f1 { top: 20px; left: 20px; }
-.mode-empty-dev-float.f2 { top: 20px; right: 20px; }
-.mode-empty-dev-float.f3 { bottom: 20px; left: 16px; }
-.mode-empty-dev-float.f4 { bottom: 20px; right: 16px; }
-.mode-empty-dev-float.f5 { top: 50%; left: 8px; transform: translateY(-50%); }
-.mode-empty-dev-float.f6 { top: 50%; right: 8px; transform: translateY(-50%); }
+.mode-empty-dev-float.f1 { top: 16px; left: 20px; }
+.mode-empty-dev-float.f2 { top: 16px; right: 20px; }
+.mode-empty-dev-float.f3 { bottom: 16px; left: 20px; }
+.mode-empty-dev-float.f4 { bottom: 16px; right: 20px; }
+.mode-empty-dev-float.f5 { top: 50%; left: 10px; transform: translateY(-50%); }
+.mode-empty-dev-float.f6 { top: 50%; right: 10px; transform: translateY(-50%); }
 
 .mode-empty-info {
   padding: 14px 16px 18px;
@@ -160,14 +130,6 @@ body {
   transition: background 0.2s;
 }
 .mode-empty-btn:hover { background: #1976D2; }
-
-/* Mode quick setup button in title row */
-.mode-quick-setup-btn {
-  padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
-  color: #2196F3; cursor: pointer; background: #f0f7ff; border: none;
-  transition: background 0.2s;
-}
-.mode-quick-setup-btn:hover { background: #e0f0ff; }
 
 /* Guidance Card (kept for backward compat but hidden) */
 .guidance-card {
@@ -734,39 +696,31 @@ body {
         <div id="modeArea">
           <div class="section-title-row">
             <div class="section-title">Mode</div>
-            <button class="mode-quick-setup-btn" onclick="startGuidedSetup()">+ Quick Setup Mode</button>
           </div>
           <div id="modeEmptyState">
             <div class="mode-empty-card">
               <div class="mode-empty-illustration">
+                <!-- Central tap button -->
+                <div class="mode-empty-center-btn">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2196F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v0"/>
+                    <path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v2"/>
+                    <path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/>
+                    <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.9-6-2.1A2 2 0 0 1 4 18v-4a2 2 0 0 1 2-2"/>
+                  </svg>
+                </div>
+                <!-- Device icons around -->
                 <div class="mode-empty-dev-float f1">&#128249;</div>
                 <div class="mode-empty-dev-float f2">&#128247;</div>
                 <div class="mode-empty-dev-float f3">&#128682;</div>
                 <div class="mode-empty-dev-float f4">&#127968;</div>
                 <div class="mode-empty-dev-float f5">&#128663;</div>
                 <div class="mode-empty-dev-float f6">&#128161;</div>
-                <div class="mode-empty-phone">
-                  <div class="mode-empty-phone-header">
-                    <div class="mode-empty-phone-notch"></div>
-                  </div>
-                  <div class="mode-empty-phone-body">
-                    <div class="mode-empty-phone-title"></div>
-                    <div class="mode-empty-phone-sub"></div>
-                    <div class="mode-empty-phone-btn">
-                      <div class="mode-empty-phone-btn-inner"></div>
-                    </div>
-                    <div class="mode-empty-phone-devices">
-                      <div class="mode-empty-phone-dev">&#128249;</div>
-                      <div class="mode-empty-phone-dev">&#128247;</div>
-                      <div class="mode-empty-phone-dev">&#128682;</div>
-                    </div>
-                  </div>
-                </div>
               </div>
               <div class="mode-empty-info">
                 <div class="mode-empty-title">One-Tap Control for All Devices</div>
                 <div class="mode-empty-desc">Set up Home, Away, and Disarmed modes to manage your entire home instantly</div>
-                <button class="mode-empty-btn" onclick="startGuidedSetup()">Set Up</button>
+                <button class="mode-empty-btn" onclick="startGuidedSetup()">+ Quick Setup Mode</button>
               </div>
             </div>
           </div>
@@ -825,12 +779,6 @@ body {
           </div>
         </div>
 
-        <!-- Migration trigger button (for demo) -->
-        <div style="text-align:center;padding:8px 20px 20px;">
-          <button onclick="showMigrationPopup()" style="padding:10px 20px;border-radius:12px;border:1px solid #e0e0e0;background:#fff;font-size:13px;color:#666;cursor:pointer;">
-            &#9889; Demo: Show Migration Popup
-          </button>
-        </div>
       </div>
 
       <!-- Bottom Nav -->
