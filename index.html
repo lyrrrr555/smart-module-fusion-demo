@@ -1911,7 +1911,9 @@ function showSwitchModal(sceneName) {
     if (el) el.textContent = mode;
   }
   document.querySelectorAll('#pageMain .scene-card').forEach(c => c.classList.remove('active-scene'));
-  const card = event.currentTarget.closest('.scene-card');
+  let card = null;
+  try { card = event.currentTarget.closest('.scene-card'); } catch(e) {}
+  if (!card) card = document.querySelector('.scene-card[data-mode="' + sceneName + '"]');
   if (card) card.classList.add('active-scene');
   document.querySelectorAll('#pageMain .scene-status').forEach(s => {
     s.textContent = s.textContent.replace('Active &middot; ', '');
@@ -1921,8 +1923,37 @@ function showSwitchModal(sceneName) {
     clickedStatus.innerHTML = 'Active &middot; ' + clickedStatus.innerHTML;
   }
   modal.classList.add('show');
+  // Auto-close after brief display and show result toast
+  setTimeout(() => {
+    modal.classList.remove('show');
+    showSwitchResult(sceneName);
+  }, 1500);
 }
-function closeSwitchModal() { document.getElementById('switchModal').classList.remove('show'); }
+function showSwitchResult(sceneName) {
+  // Check device status in modal for offline devices
+  const failedDevices = [];
+  document.querySelectorAll('.switch-modal-device').forEach(el => {
+    const name = el.querySelector('.switch-modal-device-name');
+    const status = el.querySelector('.switch-modal-device-status');
+    if (status && status.textContent === 'Offline' && name) {
+      failedDevices.push(name.textContent);
+    }
+  });
+  const totalDevices = document.querySelectorAll('.switch-modal-device').length;
+  const successCount = totalDevices - failedDevices.length;
+  if (failedDevices.length === 0) {
+    showToast('Successfully switched to ' + sceneName + ' mode');
+  } else if (failedDevices.length === totalDevices) {
+    showToast('Failed to switch to ' + sceneName + ' mode. All devices offline.');
+  } else {
+    showToast(successCount + ' of ' + totalDevices + ' devices switched to ' + sceneName + ' mode. ' + failedDevices[0] + ' failed (offline).');
+  }
+}
+function closeSwitchModal() {
+  document.getElementById('switchModal').classList.remove('show');
+  const sceneName = document.getElementById('switchModalTitle').textContent;
+  showSwitchResult(sceneName);
+}
 
 // ========== Migration Popup ==========
 function showMigrationPopup() { document.getElementById('migrationOverlay').classList.add('show'); }
@@ -2076,8 +2107,6 @@ function saveAutomation() {
   automationActions = [];
   document.getElementById('automationName').value = '';
   document.getElementById('addAutomationTitle').textContent = 'Add Automation';
-
-  renderAutomationCards();
 
   if (calendarFlowActive) {
     calendarFlowActive = false;
