@@ -962,7 +962,7 @@ body {
           <div id="sceneCardsArea" style="display:none;">
             <div class="scene-section" style="padding-top: 0;">
               <div class="scene-card active-scene" data-mode="Home">
-                <div class="scene-card-left" onclick="showSwitchModal('Home')">
+                <div class="scene-card-left">
                   <div class="scene-icon home">&#127968;</div>
                   <div><div class="scene-name">Home</div><div class="scene-status">Active &middot; 4 devices</div></div>
                 </div>
@@ -971,7 +971,7 @@ body {
                 </div>
               </div>
               <div class="scene-card" data-mode="Away">
-                <div class="scene-card-left" onclick="showSwitchModal('Away')">
+                <div class="scene-card-left">
                   <div class="scene-icon away">&#128274;</div>
                   <div><div class="scene-name">Away</div><div class="scene-status">5 devices</div></div>
                 </div>
@@ -980,7 +980,7 @@ body {
                 </div>
               </div>
               <div class="scene-card" data-mode="Disarm">
-                <div class="scene-card-left" onclick="showSwitchModal('Disarm')">
+                <div class="scene-card-left">
                   <div class="scene-icon disarm">&#128737;&#65039;</div>
                   <div><div class="scene-name">Disarm</div><div class="scene-status">5 devices</div></div>
                 </div>
@@ -1814,7 +1814,6 @@ function advanceToNext() {
 }
 
 function showPopulatedMain() {
-  // Hide empty state, show scene cards
   document.getElementById('modeEmptyState').style.display = 'none';
   document.getElementById('sceneCardsArea').style.display = 'block';
   navigateTo('pageMain');
@@ -1892,7 +1891,19 @@ function navigateTo(pageId) {
   page.classList.add('page-enter');
   if (pageId === 'pageSchedule') renderScheduleRules();
   if (pageId === 'pageSetSchedule') initTimePickers();
-  if (pageId === 'pageMain') renderAutomationCards();
+  if (pageId === 'pageMain') {
+    renderAutomationCards();
+    bindSceneCards();
+  }
+}
+function bindSceneCards() {
+  document.querySelectorAll('#sceneCardsArea .scene-card').forEach(card => {
+    card.onclick = function(e) {
+      if (e.target.closest('.scene-settings')) return;
+      const mode = card.getAttribute('data-mode');
+      if (mode) showSwitchModal(mode);
+    };
+  });
 }
 
 // ========== Switch Mode Modal ==========
@@ -2629,9 +2640,12 @@ function saveCustomMode() {
   card.className = 'scene-card';
   card.setAttribute('data-custom', 'true');
   card.setAttribute('data-mode', modeName);
-  card.onclick = () => showSwitchModal(modeName);
+  card.onclick = function(e) {
+    if (e.target.closest('.scene-settings')) return;
+    showSwitchModal(modeName);
+  };
   card.innerHTML =
-    '<div class="scene-card-left" onclick="showSwitchModal(\'' + modeName + '\')">' +
+    '<div class="scene-card-left">' +
       '<div class="scene-icon custom">&#127947;</div>' +
       '<div><div class="scene-name">' + modeName + '</div><div class="scene-status">' + deviceCount + ' devices</div></div>' +
     '</div>' +
